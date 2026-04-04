@@ -1,0 +1,11 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/admin/page": "/admin",
+  "/contractor/page": "/contractor",
+  "/eligibility/page": "/eligibility",
+  "/estimate/page": "/estimate",
+  "/favicon.ico/route": "/favicon.ico",
+  "/page": "/",
+  "/project/[id]/page": "/project/[id]"
+}

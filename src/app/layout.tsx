@@ -1,29 +1,51 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import Link from "next/link";
-import "./globals.css";
+import type { Metadata } from 'next'
+import { Geist, Geist_Mono } from 'next/font/google'
+import Link from 'next/link'
+import './globals.css'
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
+})
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
+})
 
 export const metadata: Metadata = {
-  title: "HeatPumpClarity — NYS Clean Heat Incentives Made Simple",
+  title: 'HeatPumpClarity — NYS Clean Heat Incentives Made Simple',
   description:
-    "Find out what heat pump incentives you qualify for under the NYS Clean Heat program. Plain English, no jargon.",
-};
+    'Find out what heat pump incentives you qualify for under the NYS Clean Heat program. Plain English, no jargon.',
+}
 
-export default function RootLayout({
+const hasSupabase = !!(
+  process.env.NEXT_PUBLIC_SUPABASE_URL &&
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)
+
+async function getAuthState(): Promise<{ isLoggedIn: boolean; email: string | null }> {
+  if (!hasSupabase) return { isLoggedIn: false, email: null }
+
+  try {
+    const { createClient } = await import('@/lib/supabase/server')
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    return { isLoggedIn: !!user, email: user?.email ?? null }
+  } catch {
+    return { isLoggedIn: false, email: null }
+  }
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
+  const { isLoggedIn, email } = await getAuthState()
+
   return (
     <html
       lang="en"
@@ -36,9 +58,7 @@ export default function RootLayout({
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#2563eb] text-white font-bold text-sm">
                 HP
               </div>
-              <span className="text-lg font-semibold text-gray-900">
-                HeatPumpClarity
-              </span>
+              <span className="text-lg font-semibold text-gray-900">HeatPumpClarity</span>
             </Link>
             <nav className="flex items-center gap-1 sm:gap-4 text-sm">
               <Link
@@ -59,6 +79,29 @@ export default function RootLayout({
               >
                 Admin
               </Link>
+
+              {hasSupabase && (
+                <>
+                  {isLoggedIn ? (
+                    <form action="/auth/signout" method="POST">
+                      <button
+                        type="submit"
+                        className="rounded-md px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+                        title={email ?? undefined}
+                      >
+                        Sign Out
+                      </button>
+                    </form>
+                  ) : (
+                    <Link
+                      href="/auth/signin"
+                      className="rounded-md px-3 py-2 bg-[#2563eb] text-white hover:bg-[#1d4ed8] transition-colors font-medium"
+                    >
+                      Sign In
+                    </Link>
+                  )}
+                </>
+              )}
             </nav>
           </div>
         </header>
@@ -68,13 +111,13 @@ export default function RootLayout({
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
               <p>&copy; {new Date().getFullYear()} HeatPumpClarity. All rights reserved.</p>
               <p className="text-xs max-w-md text-center sm:text-right">
-                Incentive amounts shown are estimates. Final eligibility and
-                amounts depend on current program rules and utility requirements.
+                Incentive amounts shown are estimates. Final eligibility and amounts depend on
+                current program rules and utility requirements.
               </p>
             </div>
           </div>
         </footer>
       </body>
     </html>
-  );
+  )
 }

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Select,
   SelectContent,
@@ -19,7 +20,6 @@ import type {
   Utility,
   ProjectType,
   EquipmentType,
-  WaterHeaterReplace,
 } from "@/lib/calculator";
 
 const TOTAL_STEPS = 6;
@@ -32,9 +32,29 @@ export default function EligibilityPage() {
   const [utility, setUtility] = useState<Utility | "">("");
   const [projectType, setProjectType] = useState<ProjectType | "">("");
   const [equipmentType, setEquipmentType] = useState<EquipmentType | "">("");
-  const [waterHeaterReplace, setWaterHeaterReplace] = useState<WaterHeaterReplace | "">("");
+
+  // Conditional question state — null = not yet answered
+  const [willDecommission, setWillDecommission] = useState<boolean | null>(null);
+  const [hasIntegratedControls, setHasIntegratedControls] = useState<boolean | null>(null);
+  const [coversAllUnits, setCoversAllUnits] = useState<boolean | null>(null);
+
   const [sqft, setSqft] = useState("");
   const [isDac, setIsDac] = useState(false);
+
+  // Determine which conditional questions apply in step 5
+  const showDecommission =
+    equipmentType === "ashp_ducted" || equipmentType === "ashp_ductless";
+
+  const showIntegratedControls =
+    (equipmentType === "ashp_ducted" || equipmentType === "ashp_ductless") &&
+    utility === "con_edison" &&
+    willDecommission === false;
+
+  const showCoversAllUnits =
+    equipmentType === "gshp" && utility === "con_edison";
+
+  const noConditionalQuestions =
+    !showDecommission && !showIntegratedControls && !showCoversAllUnits;
 
   const canAdvance = (): boolean => {
     switch (step) {
@@ -42,22 +62,31 @@ export default function EligibilityPage() {
       case 2: return utility !== "";
       case 3: return projectType !== "";
       case 4: return equipmentType !== "";
-      case 5: return true;
+      case 5: {
+        if (noConditionalQuestions) return true;
+        if (showDecommission && willDecommission === null) return false;
+        if (showIntegratedControls && hasIntegratedControls === null) return false;
+        if (showCoversAllUnits && coversAllUnits === null) return false;
+        return true;
+      }
       default: return false;
     }
   };
 
   const handleNext = () => {
     if (step === 5) {
-      // Build query params and redirect to estimate
+      // Step 5 complete: if no conditional questions, skip straight to redirect
+      // Otherwise validate and redirect
       const params = new URLSearchParams({
         homeType: homeType as string,
         utility: utility as string,
         projectType: projectType as string,
         equipmentType: equipmentType as string,
+        willDecommission: (willDecommission ?? false).toString(),
+        hasIntegratedControls: (hasIntegratedControls ?? false).toString(),
+        coversAllUnits: (coversAllUnits ?? false).toString(),
         isDac: isDac.toString(),
       });
-      if (waterHeaterReplace) params.set("waterHeaterReplace", waterHeaterReplace);
       if (sqft) params.set("sqft", sqft);
       router.push(`/estimate?${params.toString()}`);
       return;
@@ -82,7 +111,7 @@ export default function EligibilityPage() {
     { value: "orange_rockland", label: "Orange & Rockland" },
   ];
 
-  const equipmentOptions: { value: EquipmentType; label: string; helper: string }[] = [
+  const allEquipmentOptions: { value: EquipmentType; label: string; helper: string }[] = [
     {
       value: "ashp_ducted",
       label: "Air Source Heat Pump (Ducted)",
@@ -105,6 +134,13 @@ export default function EligibilityPage() {
     },
   ];
 
+  const visibleEquipmentOptions =
+    projectType === "new_construction"
+      ? allEquipmentOptions.filter(
+          (opt) => opt.value !== "ashp_ducted" && opt.value !== "ashp_ductless"
+        )
+      : allEquipmentOptions;
+
   return (
     <div className="py-8 px-4 sm:px-6">
       <div className="mx-auto max-w-2xl">
@@ -120,7 +156,7 @@ export default function EligibilityPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between text-sm text-gray-500 mb-2">
             <span>Step {step} of {TOTAL_STEPS - 1}</span>
-            <span>{Math.round(((step) / (TOTAL_STEPS - 1)) * 100)}%</span>
+            <span>{Math.round((step / (TOTAL_STEPS - 1)) * 100)}%</span>
           </div>
           <div className="h-2 rounded-full bg-gray-200">
             <div
@@ -205,35 +241,18 @@ export default function EligibilityPage() {
                   </p>
                 </button>
                 <button
-                  onClick={() => setProjectType("retrofit_full")}
+                  onClick={() => setProjectType("retrofit")}
                   className={`w-full text-left rounded-lg border-2 p-4 transition-colors ${
-                    projectType === "retrofit_full"
+                    projectType === "retrofit"
                       ? "border-[#2563eb] bg-blue-50"
                       : "border-gray-200 hover:border-gray-300"
                   }`}
                 >
                   <span className="font-medium text-gray-900">
-                    Existing Home — Full Displacement
+                    Existing Home (Retrofit)
                   </span>
                   <p className="text-sm text-gray-500 mt-1">
-                    Completely replacing your current heating system (e.g.,
-                    removing your furnace or boiler entirely)
-                  </p>
-                </button>
-                <button
-                  onClick={() => setProjectType("retrofit_partial")}
-                  className={`w-full text-left rounded-lg border-2 p-4 transition-colors ${
-                    projectType === "retrofit_partial"
-                      ? "border-[#2563eb] bg-blue-50"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <span className="font-medium text-gray-900">
-                    Existing Home — Partial Displacement
-                  </span>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Adding a heat pump alongside your existing heating system
-                    (keeping your furnace as backup)
+                    Upgrading the heating system in an existing home
                   </p>
                 </button>
               </div>
@@ -242,11 +261,19 @@ export default function EligibilityPage() {
             {/* Step 4: Equipment Type */}
             {step === 4 && (
               <div className="space-y-3">
+                {projectType === "new_construction" && (
+                  <Alert className="bg-amber-50 border-amber-200 mb-2">
+                    <AlertDescription className="text-amber-800 text-sm">
+                      ASHP systems (ducted and ductless) are not eligible for new construction
+                      under the NYS Clean Heat program. Heat pumps for new builds are limited
+                      to ground-source (GSHP) systems and heat pump water heaters.
+                    </AlertDescription>
+                  </Alert>
+                )}
                 <p className="text-sm text-gray-500">
-                  Not sure? Most homes use ducted or ductless air source heat
-                  pumps.
+                  Not sure? Most homes use ducted or ductless air source heat pumps.
                 </p>
-                {equipmentOptions.map((opt) => (
+                {visibleEquipmentOptions.map((opt) => (
                   <button
                     key={opt.value}
                     onClick={() => setEquipmentType(opt.value)}
@@ -265,45 +292,120 @@ export default function EligibilityPage() {
               </div>
             )}
 
-            {/* Step 5: Additional Details */}
+            {/* Step 5: Conditional Questions + Details */}
             {step === 5 && (
               <div className="space-y-6">
-                {equipmentType === "hpwh" && (
+                {/* Decommission question */}
+                {showDecommission && (
                   <div>
-                    <Label className="font-medium text-gray-900">
-                      What is the water heater replacing?
+                    <Label className="font-medium text-gray-900 block mb-2">
+                      Are you removing your existing fossil-fuel heating system entirely?
                     </Label>
-                    <div className="mt-2 space-y-2">
+                    <div className="space-y-2">
                       <button
-                        onClick={() => setWaterHeaterReplace("electric")}
+                        onClick={() => setWillDecommission(true)}
                         className={`w-full text-left rounded-lg border-2 p-3 transition-colors ${
-                          waterHeaterReplace === "electric"
+                          willDecommission === true
                             ? "border-[#2563eb] bg-blue-50"
                             : "border-gray-200 hover:border-gray-300"
                         }`}
                       >
-                        Electric water heater
+                        Yes, full removal
                       </button>
                       <button
-                        onClick={() => setWaterHeaterReplace("fossil_fuel")}
+                        onClick={() => {
+                          setWillDecommission(false);
+                          // Reset integrated controls when decommission changes
+                          setHasIntegratedControls(null);
+                        }}
                         className={`w-full text-left rounded-lg border-2 p-3 transition-colors ${
-                          waterHeaterReplace === "fossil_fuel"
+                          willDecommission === false
                             ? "border-[#2563eb] bg-blue-50"
                             : "border-gray-200 hover:border-gray-300"
                         }`}
                       >
-                        Gas, oil, or propane water heater
+                        No, keeping it as backup
                       </button>
                     </div>
                   </div>
                 )}
 
+                {/* Integrated controls question (Con Edison only, no decommission) */}
+                {showIntegratedControls && (
+                  <div>
+                    <Label className="font-medium text-gray-900 block mb-2">
+                      Will the system include integrated controls that coordinate the heat pump
+                      with your existing heating system?
+                    </Label>
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => setHasIntegratedControls(true)}
+                        className={`w-full text-left rounded-lg border-2 p-3 transition-colors ${
+                          hasIntegratedControls === true
+                            ? "border-[#2563eb] bg-blue-50"
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                      >
+                        Yes
+                      </button>
+                      <button
+                        onClick={() => setHasIntegratedControls(false)}
+                        className={`w-full text-left rounded-lg border-2 p-3 transition-colors ${
+                          hasIntegratedControls === false
+                            ? "border-[#2563eb] bg-blue-50"
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                      >
+                        No
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Required for Con Edison Category 2a eligibility.
+                    </p>
+                  </div>
+                )}
+
+                {/* Covers-all-units question (Con Edison GSHP only) */}
+                {showCoversAllUnits && (
+                  <div>
+                    <Label className="font-medium text-gray-900 block mb-2">
+                      Will this GSHP system serve all units in the building?
+                    </Label>
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => setCoversAllUnits(true)}
+                        className={`w-full text-left rounded-lg border-2 p-3 transition-colors ${
+                          coversAllUnits === true
+                            ? "border-[#2563eb] bg-blue-50"
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                      >
+                        Yes, all units
+                      </button>
+                      <button
+                        onClick={() => setCoversAllUnits(false)}
+                        className={`w-full text-left rounded-lg border-2 p-3 transition-colors ${
+                          coversAllUnits === false
+                            ? "border-[#2563eb] bg-blue-50"
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                      >
+                        No, partial coverage
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Con Edison&apos;s GSHP incentive requires whole-building coverage.
+                    </p>
+                  </div>
+                )}
+
+                {/* sqft input */}
                 <div>
                   <Label htmlFor="sqft" className="font-medium text-gray-900">
                     Approximate home size (sq ft)
                   </Label>
                   <p className="text-sm text-gray-500 mt-1 mb-2">
-                    Optional — helps us estimate system size
+                    Optional — helps estimate system size
                   </p>
                   <Input
                     id="sqft"
@@ -315,6 +417,7 @@ export default function EligibilityPage() {
                   />
                 </div>
 
+                {/* DAC toggle */}
                 <div className="flex items-start gap-3 rounded-lg border border-gray-200 p-4">
                   <Switch
                     id="dac"

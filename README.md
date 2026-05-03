@@ -44,8 +44,8 @@ To connect a real database, auth, and storage, see [SUPABASE_SETUP.md](./SUPABAS
 
 **Quick start:**
 1. Create a Supabase project
-2. Run `supabase/migrations/001_schema.sql` then `002_rls_and_fixes.sql` in the SQL editor
-3. Run `supabase/seed.sql`
+2. Run migrations in order in the SQL editor: `001_schema.sql`, `002_rls_and_fixes.sql`, `003_clean_heat_corrections.sql`
+3. Run `supabase/seed.sql` (sample homeowners, projects, documents, leads only — utility_rules are seeded by migration 003)
 4. Create a private storage bucket named `project-documents`
 5. Copy `.env.example` to `.env.local` and fill in your credentials
 6. Promote your account to admin: `UPDATE users SET role = 'admin' WHERE email = 'your@email.com';`
@@ -69,7 +69,7 @@ When Supabase is **not configured**, auth pages show a mock-mode notice and the 
 | Route | Description |
 |-------|-------------|
 | `/` | Home page with hero, benefits, utility coverage, published updates |
-| `/eligibility` | Step-by-step eligibility wizard (5 steps) |
+| `/eligibility` | Step-by-step eligibility wizard (6 steps) |
 | `/estimate` | Incentive estimate results, next steps, lead capture form |
 | `/contractor` | Contractor dashboard — real auth when Supabase is configured |
 | `/project/[id]` | Project detail with document upload |
@@ -91,14 +91,34 @@ When Supabase is **not configured**, auth pages show a mock-mode notice and the 
 
 ## NYS Clean Heat Categories
 
-- **Category 2**: Air Source Heat Pump (Ducted) — New Construction
-- **Category 2a**: Air Source Heat Pump (Ducted) — Retrofit, Full Displacement
-- **Category 2b**: Air Source Heat Pump (Ducted) — Retrofit, Partial Displacement
-- **Category 3**: Air Source Heat Pump (Ductless/Mini-Split)
-- **Category 4**: Ground Source Heat Pump
-- **Category 5**: Heat Pump Water Heater — New Construction
-- **Category 5a**: Heat Pump Water Heater — Replacing Electric
-- **Category 5b**: Heat Pump Water Heater — Replacing Fossil Fuel
+Category names and availability per the NYS Clean Heat Heat Pump Program Manual, Version 2 (March 5, 2026).
+Incentive amounts are flat dollars per project, not per ton or per unit.
+
+| Category | Name | Notes |
+|----------|------|-------|
+| **2** | ccASHP Full Load Heating | Existing buildings only. ASHP not eligible for new construction. |
+| **2a** | ccASHP Full Load with Integrated Controls | Con Edison territory only. |
+| **2b** | ccASHP Full Load with Decommissioning | Requires removal of existing fossil-fuel heating system. |
+| **3** | GSHP Residential Full Load Heating | Eligible for retrofit and new construction. Con Edison requires whole-building coverage. |
+| **4** | Partial-to-Full Load (ASHP) | Adding capacity to an existing partial-load heat pump system. |
+| **5** | Downstream Domestic Water Heating | HPWH through downstream (retail) channel. |
+| **5a** | Midstream HPWH | HPWH through midstream (distributor/installer) channel. National Grid: retail-only. |
+| **5b** | GSHP Desuperheater | Integrated water heating component of a GSHP system. Not available from Con Edison or Orange & Rockland. |
+
+### Per-utility availability
+
+| Category | Central Hudson | Con Edison | National Grid | NYSEG | RG&E | Orange & Rockland |
+|----------|:-:|:-:|:-:|:-:|:-:|:-:|
+| 2  | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| 2a | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| 2b | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| 3  | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| 4  | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| 5  | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| 5a | ✅ | ✅ | ✅ (retail only) | ✅ | ✅ | ✅ |
+| 5b | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
+
+Source: [NYS Clean Heat resources](https://cleanheat.ny.gov/resources-for-applications/)
 
 ## Environment Variables
 

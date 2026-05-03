@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { CATEGORY_LABELS, type CategoryCode } from '@/lib/calculator'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -74,16 +75,9 @@ const UTILITY_OPTIONS = [
   { value: 'orange_rockland', label: 'Orange & Rockland' },
 ]
 
-const CATEGORY_OPTIONS = [
-  { value: 'cat_2', label: 'ASHP Ducted — New Construction' },
-  { value: 'cat_2a', label: 'ASHP Ducted — Retrofit, Full Displacement' },
-  { value: 'cat_2b', label: 'ASHP Ducted — Retrofit, Partial Displacement' },
-  { value: 'cat_3', label: 'ASHP Ductless/Mini-Split' },
-  { value: 'cat_4', label: 'Ground Source Heat Pump' },
-  { value: 'cat_5', label: 'HPWH — New Construction' },
-  { value: 'cat_5a', label: 'HPWH — Replacing Electric' },
-  { value: 'cat_5b', label: 'HPWH — Replacing Fossil Fuel' },
-]
+const CATEGORY_OPTIONS = (Object.entries(CATEGORY_LABELS) as [CategoryCode, string][]).map(
+  ([value, label]) => ({ value, label })
+)
 
 export default function ContractorDashboard({ projects: initialProjects, mockMode, contractorName }: Props) {
   const [isLoggedIn, setIsLoggedIn] = useState(!mockMode)

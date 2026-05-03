@@ -19,7 +19,6 @@ import {
   type Utility,
   type ProjectType,
   type EquipmentType,
-  type WaterHeaterReplace,
 } from '@/lib/calculator'
 import { submitLead } from '@/app/actions/leads'
 
@@ -33,14 +32,15 @@ function EstimateContent() {
   const [leadError, setLeadError] = useState<string | null>(null)
 
   const input: EligibilityInput = {
-    homeType: (searchParams.get('homeType') as HomeType) || 'single_family',
-    utility: (searchParams.get('utility') as Utility) || 'con_edison',
-    projectType: (searchParams.get('projectType') as ProjectType) || 'retrofit_full',
-    equipmentType: (searchParams.get('equipmentType') as EquipmentType) || 'ashp_ducted',
-    waterHeaterReplace:
-      (searchParams.get('waterHeaterReplace') as WaterHeaterReplace) || undefined,
-    isDac: searchParams.get('isDac') === 'true',
-    sqft: searchParams.get('sqft') ? Number(searchParams.get('sqft')) : undefined,
+    homeType:              (searchParams.get('homeType') as HomeType)        || 'single_family',
+    utility:               (searchParams.get('utility') as Utility)          || 'con_edison',
+    projectType:           (searchParams.get('projectType') as ProjectType)  || 'retrofit',
+    equipmentType:         (searchParams.get('equipmentType') as EquipmentType) || 'ashp_ducted',
+    willDecommission:      searchParams.get('willDecommission') === 'true',
+    hasIntegratedControls: searchParams.get('hasIntegratedControls') === 'true',
+    coversAllUnits:        searchParams.get('coversAllUnits') === 'true',
+    isDac:                 searchParams.get('isDac') === 'true',
+    sqft:                  searchParams.get('sqft') ? Number(searchParams.get('sqft')) : undefined,
   }
 
   const estimate = calculateEstimate(input)
@@ -76,9 +76,11 @@ function EstimateContent() {
   if (!estimate) {
     return (
       <div className="py-16 px-4 text-center">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">Unable to Calculate Estimate</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-4">Not Eligible Under Current Program</h1>
         <p className="text-gray-600 mb-6">
-          We couldn&apos;t find incentive data for your selection. Please try again.
+          Based on your answers, this project combination may not be eligible under the NYS Clean
+          Heat program. Contact your utility directly to confirm, or start over to check a different
+          scenario.
         </p>
         <Link
           href="/eligibility"
@@ -133,21 +135,22 @@ function EstimateContent() {
             <Separator />
 
             <div>
-              <p className="text-sm text-gray-500 mb-1">Estimated Incentive Range</p>
+              <p className="text-sm text-gray-500 mb-1">Estimated Incentive</p>
               <p className="text-3xl font-bold text-[#16a34a]">
                 {formatCurrency(estimate.estimatedIncentiveMin)}
-                {estimate.estimatedIncentiveMin !== estimate.estimatedIncentiveMax &&
-                  ` — ${formatCurrency(estimate.estimatedIncentiveMax)}`}
               </p>
               <p className="text-sm text-gray-500 mt-1">
-                Base rate: {formatCurrency(estimate.baseRate)} {estimate.unit}
-                {estimate.isDac && (
-                  <>
-                    {' '}
-                    | DAC rate: {formatCurrency(estimate.dacRate)} {estimate.unit}
-                  </>
+                Flat dollar amount per project
+                {estimate.isDac && estimate.dacBonus > 0 && (
+                  <> | DAC rate: {formatCurrency(estimate.dacRate)}</>
                 )}
               </p>
+              {estimate.retailOnly && (
+                <p className="text-sm text-amber-700 mt-2 bg-amber-50 border border-amber-200 rounded p-2">
+                  This incentive is available through the midstream retail channel. Ask your
+                  retailer or distributor about claiming it at point of sale.
+                </p>
+              )}
             </div>
 
             {estimate.isDac && estimate.dacBonus > 0 && (

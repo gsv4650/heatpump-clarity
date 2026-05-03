@@ -231,11 +231,7 @@ export default function AdminPanel({ manualUpdates: initialUpdates, leads, mockM
                               {formatCurrency(rate.dacIncentive)}
                             </TableCell>
                             <TableCell className="text-sm text-gray-500">
-                              {rate.unit === 'per_ton'
-                                ? 'per ton'
-                                : rate.unit === 'per_unit'
-                                ? 'per unit'
-                                : 'flat'}
+                              flat
                             </TableCell>
                             <TableCell className="text-right">
                               <Button

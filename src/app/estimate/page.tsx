@@ -167,6 +167,28 @@ function EstimateContent() {
           </CardContent>
         </Card>
 
+        {/* Weatherized Tier notice — space heating categories only, before 2026-09-01 */}
+        {/* TODO: After 2026-09-01, replace this notice with actual Weatherized Tier rate
+            calculation. NYSERDA expected to publish rates before launch; check Program
+            Manual for updates. */}
+        {(['cat_2', 'cat_2a', 'cat_2b', 'cat_3', 'cat_4'] as const).includes(
+          estimate.category as 'cat_2' | 'cat_2a' | 'cat_2b' | 'cat_3' | 'cat_4'
+        ) && new Date() < new Date('2026-09-01') && (
+          <Alert className="bg-blue-50 border-blue-200 mb-6">
+            <AlertDescription className="text-blue-800 text-sm">
+              <span className="font-semibold">ℹ️ Heads up:</span> Starting September 1, 2026,
+              NYS Clean Heat will offer differentiated rates for projects that meet a minimum
+              weatherization standard (Weatherized Tier). The estimate above reflects current
+              rates and does not yet include Weatherized Tier amounts, which NYSERDA has not
+              published. If your installation will occur on or after September 1, 2026, your
+              final incentive may differ.{' '}
+              <span className="text-blue-700">
+                Source: NYS Clean Heat Program Manual, Section 2.1.5.
+              </span>
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* How to Claim */}
         <Card className="mb-6">
           <CardHeader>

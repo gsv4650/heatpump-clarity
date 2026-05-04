@@ -222,21 +222,21 @@ export const SAMPLE_PROJECTS: Project[] = [
 export const SAMPLE_MANUAL_UPDATES: ManualUpdate[] = [
   {
     id: "upd-001",
-    title: "March 2026: NYSERDA updated Category 2a incentive rates for Con Edison territory",
+    title: "March 2026: Weatherized Tier launches September 1, 2026",
     description:
-      "Con Edison base incentive for Category 2a (ASHP Ducted, Retrofit Full Displacement) increased from $1,100/ton to $1,200/ton effective March 1, 2026. DAC rate also increased to $1,800/ton.",
+      "NYS Clean Heat will introduce a differentiated incentive tier on September 1, 2026 for space heating projects that meet a minimum weatherization standard, as directed by the May 2025 Non-LMI EE/BE Order. Specific incentive rates for the Weatherized Tier have not yet been published. Source: Program Manual Version 2, March 5, 2026, version history table (page iv) and Section 2.1.5 (page 8).",
     published: true,
-    createdAt: "2026-03-01T10:00:00Z",
-    updatedAt: "2026-03-01T10:00:00Z",
+    createdAt: "2026-03-05T00:00:00Z",
+    updatedAt: "2026-03-05T00:00:00Z",
   },
   {
     id: "upd-002",
-    title: "February 2026: DAC bonus amounts increased for ground source installations",
+    title: "January 2026: Orange & Rockland incentive amounts corrected",
     description:
-      "NYSERDA has increased the DAC bonus for Category 4 (Ground Source Heat Pump) across all utility territories. Enhanced incentives now range from $1,900 to $2,000 per ton for DAC-eligible households.",
+      "Program Manual Version 1.1, filed January 23, 2026, corrected a small error in the Orange & Rockland incentive amounts in Section 2.2.7. Contractors working in O&R territory should reference the current incentive table for accurate amounts. Source: Program Manual Version 1.1, version history table (page iv) and Section 2.2.7 (page 14).",
     published: true,
-    createdAt: "2026-02-15T09:00:00Z",
-    updatedAt: "2026-02-15T09:00:00Z",
+    createdAt: "2026-01-23T00:00:00Z",
+    updatedAt: "2026-01-23T00:00:00Z",
   },
   {
     id: "upd-003",

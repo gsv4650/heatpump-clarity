@@ -25,11 +25,11 @@ export const UTILITY_LABELS: Record<Utility, string> = {
 };
 
 export const CATEGORY_LABELS: Record<CategoryCode, string> = {
-  cat_2:  "ccASHP Full Load Heating",
-  cat_2a: "ccASHP Full Load with Integrated Controls (Con Edison only)",
-  cat_2b: "ccASHP Full Load with Decommissioning",
-  cat_3:  "GSHP Residential Full Load Heating",
-  cat_4:  "Partial-to-Full Load (ASHP)",
+  cat_2:  "ccASHP: Residential Full Load Heating",
+  cat_2a: "ccASHP: Residential Full Load Heating with Integrated Controls",
+  cat_2b: "ccASHP: Residential Full Load Heating with Decommissioning",
+  cat_3:  "GSHP: Residential Full Load Heating",
+  cat_4:  "Partial to Full Load",
   cat_5:  "Downstream Domestic Water Heating",
   cat_5a: "Midstream HPWH",
   cat_5b: "GSHP Desuperheater",

@@ -111,7 +111,13 @@ export default async function RootLayout({
         <footer className="border-t bg-white py-8 mt-12">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
-              <p>&copy; {new Date().getFullYear()} HeatPumpClarity. All rights reserved.</p>
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <p>&copy; {new Date().getFullYear()} HeatPumpClarity. All rights reserved.</p>
+                <nav className="flex items-center gap-4 text-xs">
+                  <Link href="/privacy" className="hover:text-gray-900 transition-colors">Privacy Policy</Link>
+                  <Link href="/terms" className="hover:text-gray-900 transition-colors">Terms of Service</Link>
+                </nav>
+              </div>
               <p className="text-xs max-w-md text-center sm:text-right">
                 Incentive amounts shown are estimates. Final eligibility and amounts depend on
                 current program rules and utility requirements.

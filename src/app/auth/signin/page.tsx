@@ -80,6 +80,7 @@ function SignInForm() {
                   className="mt-1"
                   required
                   disabled={!hasSupabase}
+                  data-ph-no-capture
                 />
               </div>
               <div>
@@ -101,6 +102,7 @@ function SignInForm() {
                   className="mt-1"
                   required
                   disabled={!hasSupabase}
+                  data-ph-no-capture
                 />
               </div>
 

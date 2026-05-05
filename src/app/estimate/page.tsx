@@ -283,6 +283,7 @@ function EstimateContent() {
                       value={leadName}
                       onChange={(e) => setLeadName(e.target.value)}
                       className="mt-1"
+                      data-ph-no-capture
                     />
                   </div>
                   <div>
@@ -294,6 +295,7 @@ function EstimateContent() {
                       value={leadPhone}
                       onChange={(e) => setLeadPhone(e.target.value)}
                       className="mt-1"
+                      data-ph-no-capture
                     />
                   </div>
                 </div>
@@ -309,6 +311,7 @@ function EstimateContent() {
                     onChange={(e) => setLeadEmail(e.target.value)}
                     className="mt-1"
                     required
+                    data-ph-no-capture
                   />
                 </div>
 

@@ -131,6 +131,7 @@ export default function SignUpPage() {
                   className="mt-1"
                   required
                   disabled={!hasSupabase}
+                  data-ph-no-capture
                 />
               </div>
 
@@ -145,6 +146,7 @@ export default function SignUpPage() {
                   className="mt-1"
                   required
                   disabled={!hasSupabase}
+                  data-ph-no-capture
                 />
               </div>
 
@@ -159,6 +161,7 @@ export default function SignUpPage() {
                   className="mt-1"
                   required
                   disabled={!hasSupabase}
+                  data-ph-no-capture
                 />
               </div>
 
@@ -173,6 +176,7 @@ export default function SignUpPage() {
                   className="mt-1"
                   required
                   disabled={!hasSupabase}
+                  data-ph-no-capture
                 />
               </div>
 

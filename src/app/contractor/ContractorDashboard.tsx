@@ -164,6 +164,7 @@ export default function ContractorDashboard({ projects: initialProjects, mockMod
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
                   className="mt-1"
+                  data-ph-no-capture
                 />
               </div>
               <div>
@@ -175,6 +176,7 @@ export default function ContractorDashboard({ projects: initialProjects, mockMod
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
                   className="mt-1"
+                  data-ph-no-capture
                 />
               </div>
               <Button
@@ -230,15 +232,15 @@ export default function ContractorDashboard({ projects: initialProjects, mockMod
                   <div className="grid grid-cols-2 gap-3">
                     <div className="col-span-2">
                       <Label htmlFor="np-address">Address *</Label>
-                      <Input id="np-address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="mt-1" required />
+                      <Input id="np-address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="mt-1" required data-ph-no-capture />
                     </div>
                     <div>
                       <Label htmlFor="np-city">City *</Label>
-                      <Input id="np-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className="mt-1" required />
+                      <Input id="np-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className="mt-1" required data-ph-no-capture />
                     </div>
                     <div>
                       <Label htmlFor="np-zip">ZIP *</Label>
-                      <Input id="np-zip" value={form.zip} onChange={(e) => setForm({ ...form, zip: e.target.value })} className="mt-1" required />
+                      <Input id="np-zip" value={form.zip} onChange={(e) => setForm({ ...form, zip: e.target.value })} className="mt-1" required data-ph-no-capture />
                     </div>
                   </div>
 
@@ -276,15 +278,15 @@ export default function ContractorDashboard({ projects: initialProjects, mockMod
 
                   <div>
                     <Label htmlFor="np-customerName">Customer Name *</Label>
-                    <Input id="np-customerName" value={form.customerName} onChange={(e) => setForm({ ...form, customerName: e.target.value })} className="mt-1" required />
+                    <Input id="np-customerName" value={form.customerName} onChange={(e) => setForm({ ...form, customerName: e.target.value })} className="mt-1" required data-ph-no-capture />
                   </div>
                   <div>
                     <Label htmlFor="np-customerEmail">Customer Email *</Label>
-                    <Input id="np-customerEmail" type="email" value={form.customerEmail} onChange={(e) => setForm({ ...form, customerEmail: e.target.value })} className="mt-1" required />
+                    <Input id="np-customerEmail" type="email" value={form.customerEmail} onChange={(e) => setForm({ ...form, customerEmail: e.target.value })} className="mt-1" required data-ph-no-capture />
                   </div>
                   <div>
                     <Label htmlFor="np-customerPhone">Customer Phone</Label>
-                    <Input id="np-customerPhone" type="tel" value={form.customerPhone} onChange={(e) => setForm({ ...form, customerPhone: e.target.value })} className="mt-1" />
+                    <Input id="np-customerPhone" type="tel" value={form.customerPhone} onChange={(e) => setForm({ ...form, customerPhone: e.target.value })} className="mt-1" data-ph-no-capture />
                   </div>
 
                   {formError && (

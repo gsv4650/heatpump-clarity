@@ -75,6 +75,7 @@ export default function AdminPanel({ manualUpdates: initialUpdates, leads, mockM
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="mt-1"
+                  data-ph-no-capture
                 />
               </div>
               <Button

@@ -414,6 +414,7 @@ export default function EligibilityPage() {
                     value={sqft}
                     onChange={(e) => setSqft(e.target.value)}
                     className="max-w-xs"
+                    data-ph-no-capture
                   />
                 </div>
 

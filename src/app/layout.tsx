@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import Link from 'next/link'
 import './globals.css'
+import { PostHogProvider } from '@/components/PostHogProvider'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -52,6 +53,7 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#f8fafc]">
+        <PostHogProvider>
         <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
           <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
             <Link href="/" className="flex items-center gap-2">
@@ -117,6 +119,7 @@ export default async function RootLayout({
             </div>
           </div>
         </footer>
+        </PostHogProvider>
       </body>
     </html>
   )

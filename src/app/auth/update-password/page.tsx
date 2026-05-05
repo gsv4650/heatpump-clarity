@@ -74,6 +74,7 @@ export default function UpdatePasswordPage() {
                   className="mt-1"
                   required
                   disabled={!hasSupabase}
+                  data-ph-no-capture
                 />
               </div>
 
@@ -88,6 +89,7 @@ export default function UpdatePasswordPage() {
                   className="mt-1"
                   required
                   disabled={!hasSupabase}
+                  data-ph-no-capture
                 />
               </div>
 

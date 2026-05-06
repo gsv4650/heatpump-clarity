@@ -55,7 +55,12 @@ export default function SignUpPage() {
     }
 
     if (data.user) {
-      await createUserProfile(data.user.id, fullName, email, role)
+      const profileResult = await createUserProfile(data.user.id, fullName, email, role)
+      if (!profileResult.success) {
+        setError('Account created but profile setup failed. Please try signing in, or contact support@heatpumpclarity.com.')
+        setLoading(false)
+        return
+      }
     }
 
     setSuccess(true)

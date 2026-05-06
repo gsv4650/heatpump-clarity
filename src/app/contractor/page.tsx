@@ -92,14 +92,50 @@ export default async function ContractorPage() {
     redirect('/auth/signin?redirectTo=/contractor')
   }
 
-  // Check role
+  // Check role — use maybeSingle() so a missing row returns null instead of throwing
   const { data: userData } = await supabase
     .from('users')
     .select('role, full_name')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
-  if (!userData || userData.role !== 'contractor') {
+  // If the users profile row is missing (can happen if createUserProfile failed
+  // silently during signup), try to recover via service role upsert using
+  // user.user_metadata — role and full_name are stored there at signUp() time.
+  if (!userData) {
+    try {
+      const { createServiceClient } = await import('@/lib/supabase/server')
+      const serviceSupabase = await createServiceClient()
+      await serviceSupabase.from('users').upsert({
+        id: user.id,
+        email: user.email,
+        full_name: user.user_metadata?.full_name ?? null,
+        role: (user.user_metadata?.role as string) ?? 'contractor',
+      })
+    } catch {
+      // Recovery failed — fall through to redirect
+    }
+    // Re-fetch after recovery attempt
+    const { data: recovered } = await supabase
+      .from('users')
+      .select('role, full_name')
+      .eq('id', user.id)
+      .maybeSingle()
+    if (!recovered || recovered.role !== 'contractor') {
+      redirect('/auth/signin?redirectTo=/contractor')
+    }
+    const contractorName = recovered?.full_name ?? user.email ?? 'Contractor'
+    const projects = await getServerProjects(user.id)
+    return (
+      <ContractorDashboard
+        projects={projects}
+        mockMode={false}
+        contractorName={contractorName}
+      />
+    )
+  }
+
+  if (userData.role !== 'contractor') {
     redirect('/auth/signin?redirectTo=/contractor')
   }
 

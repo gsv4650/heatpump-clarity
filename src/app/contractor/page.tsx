@@ -103,17 +103,42 @@ export default async function ContractorPage() {
   // silently during signup), try to recover via service role upsert using
   // user.user_metadata — role and full_name are stored there at signUp() time.
   if (!userData) {
+    let recoveryError: string | null = null
     try {
       const { createServiceClient } = await import('@/lib/supabase/server')
       const serviceSupabase = await createServiceClient()
-      await serviceSupabase.from('users').upsert({
-        id: user.id,
-        email: user.email,
-        full_name: user.user_metadata?.full_name ?? null,
-        role: (user.user_metadata?.role as string) ?? 'contractor',
-      })
-    } catch {
-      // Recovery failed — fall through to redirect
+
+      const role = (user.user_metadata?.role as string) ?? 'contractor'
+      const fullName = (user.user_metadata?.full_name as string) ?? null
+
+      // Step 1: upsert public.users row
+      const { error: upsertError } = await serviceSupabase
+        .from('users')
+        .upsert({
+          id: user.id,
+          email: user.email,
+          full_name: fullName,
+          role,
+        })
+
+      if (upsertError) {
+        recoveryError = `users upsert failed: ${upsertError.message} (code: ${upsertError.code})`
+        console.error('[contractor recovery]', recoveryError)
+      } else if (role === 'contractor') {
+        // Step 2: upsert public.contractors row (required for dashboard to load)
+        const { error: contractorError } = await serviceSupabase
+          .from('contractors')
+          .upsert({
+            id: user.id,
+            company_name: fullName ?? user.email ?? 'My Company',
+          })
+        if (contractorError) {
+          console.error('[contractor recovery] contractors upsert failed:', contractorError.message, contractorError.code)
+        }
+      }
+    } catch (err) {
+      recoveryError = String(err)
+      console.error('[contractor recovery] unexpected error:', err)
     }
     // Re-fetch after recovery attempt
     const { data: recovered } = await supabase

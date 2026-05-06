@@ -38,3 +38,42 @@ admin password.
 Fields intentionally excluded: numeric incentive rate inputs in AdminPanel (not PII),
 file upload inputs (not text capture).
 <!-- END:posthog-rules -->
+
+<!-- BEGIN:supabase-dual-project-rules -->
+## Supabase Dual-Project Structure
+
+HeatPumpClarity uses two separate Supabase projects:
+
+- **Production project** — holds real user data. Connected to Vercel Production
+  environment via `NEXT_PUBLIC_SUPABASE_URL` and related keys.
+- **Dev project** — holds test/demo data. Connected to Vercel Preview and
+  Development environments, and to local `.env.local` for local development.
+
+### Schema source of truth
+
+`supabase/schema.sql` is the single source of truth for the database schema.
+It contains all CREATE TABLE statements, indexes, RLS policies, triggers,
+functions, and the full `utility_rules` data seed.
+
+Keep `schema.sql` up-to-date whenever the schema changes. Also add a numbered
+migration file to `supabase/migrations/` (e.g., `004_your_change.sql`) to
+preserve change history.
+
+### Rule: always test in dev first, never in production
+
+When making any schema change:
+1. Run the SQL in the **dev** project's SQL Editor
+2. Confirm it works with no errors
+3. Apply it to the **production** project
+4. Update `supabase/schema.sql` and commit
+
+**Never run untested SQL against production.** Production holds real user data.
+If a migration is destructive or irreversible, escalate for manual review —
+do not automate without explicit approval.
+
+### Bootstrapping a new project
+
+See `docs/SUPABASE_DEV_SETUP.md` for step-by-step instructions.
+Short version: paste `supabase/schema.sql` into the SQL Editor and run.
+Then optionally run `supabase/seed.sql` for demo data (dev only).
+<!-- END:supabase-dual-project-rules -->

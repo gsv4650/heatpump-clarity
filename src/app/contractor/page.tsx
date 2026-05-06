@@ -103,7 +103,16 @@ export default async function ContractorPage() {
   // silently during signup), try to recover via service role upsert using
   // user.user_metadata — role and full_name are stored there at signUp() time.
   if (!userData) {
-    let recoveryError: string | null = null
+    // Recovery: attempt to create the missing public.users row via service role
+    type UpsertError = {
+      code: string | null
+      message: string | null
+      details: string | null
+      hint: string | null
+    }
+    let usersUpsertError: UpsertError | null = null
+    let contractorsUpsertError: UpsertError | null = null
+
     try {
       const { createServiceClient } = await import('@/lib/supabase/server')
       const serviceSupabase = await createServiceClient()
@@ -111,45 +120,114 @@ export default async function ContractorPage() {
       const role = (user.user_metadata?.role as string) ?? 'contractor'
       const fullName = (user.user_metadata?.full_name as string) ?? null
 
-      // Step 1: upsert public.users row
-      const { error: upsertError } = await serviceSupabase
+      const { error: ue } = await serviceSupabase
         .from('users')
-        .upsert({
-          id: user.id,
-          email: user.email,
-          full_name: fullName,
-          role,
-        })
+        .upsert({ id: user.id, email: user.email, full_name: fullName, role })
 
-      if (upsertError) {
-        recoveryError = `users upsert failed: ${upsertError.message} (code: ${upsertError.code})`
-        console.error('[contractor recovery]', recoveryError)
+      if (ue) {
+        usersUpsertError = {
+          code: ue.code ?? null,
+          message: ue.message ?? null,
+          details: (ue as { details?: string }).details ?? null,
+          hint: (ue as { hint?: string }).hint ?? null,
+        }
+        console.error('[contractor recovery] users upsert error:', usersUpsertError)
       } else if (role === 'contractor') {
-        // Step 2: upsert public.contractors row (required for dashboard to load)
-        const { error: contractorError } = await serviceSupabase
+        const { error: ce } = await serviceSupabase
           .from('contractors')
-          .upsert({
-            id: user.id,
-            company_name: fullName ?? user.email ?? 'My Company',
-          })
-        if (contractorError) {
-          console.error('[contractor recovery] contractors upsert failed:', contractorError.message, contractorError.code)
+          .upsert({ id: user.id, company_name: fullName ?? user.email ?? 'My Company' })
+
+        if (ce) {
+          contractorsUpsertError = {
+            code: ce.code ?? null,
+            message: ce.message ?? null,
+            details: (ce as { details?: string }).details ?? null,
+            hint: (ce as { hint?: string }).hint ?? null,
+          }
+          console.error('[contractor recovery] contractors upsert error:', contractorsUpsertError)
         }
       }
     } catch (err) {
-      recoveryError = String(err)
-      console.error('[contractor recovery] unexpected error:', err)
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error('[contractor recovery] unexpected throw:', msg)
+      usersUpsertError = { code: null, message: msg, details: null, hint: null }
     }
+
     // Re-fetch after recovery attempt
     const { data: recovered } = await supabase
       .from('users')
       .select('role, full_name')
       .eq('id', user.id)
       .maybeSingle()
+
     if (!recovered || recovered.role !== 'contractor') {
-      redirect('/auth/signin?redirectTo=/contractor')
+      // Recovery failed — render debug page instead of redirecting
+      // This is a temporary diagnostic tool. Remove after root cause is fixed.
+      return (
+        <div className="py-12 px-4 sm:px-6 max-w-3xl mx-auto font-mono text-sm">
+          <div className="bg-red-50 border border-red-300 rounded-lg p-6 space-y-6">
+            <div>
+              <h1 className="text-lg font-bold text-red-900 mb-1">
+                Contractor Dashboard — Recovery Failed (Debug Mode)
+              </h1>
+              <p className="text-red-700 text-xs">
+                This is a temporary diagnostic page. Email the contents below to{' '}
+                <strong>support@heatpumpclarity.com</strong> so we can fix this.
+              </p>
+            </div>
+
+            <div className="space-y-1">
+              <p className="font-bold text-gray-800">Auth User</p>
+              <p className="text-gray-700">ID: <span className="text-blue-700">{user.id}</span></p>
+              <p className="text-gray-700">Email: <span className="text-blue-700">{user.email}</span></p>
+            </div>
+
+            <div className="space-y-1">
+              <p className="font-bold text-gray-800">user_metadata</p>
+              <pre className="bg-gray-100 rounded p-3 text-xs overflow-auto text-gray-900 whitespace-pre-wrap break-all">
+                {JSON.stringify(user.user_metadata, null, 2)}
+              </pre>
+            </div>
+
+            <div className="space-y-1">
+              <p className="font-bold text-gray-800">public.users upsert error</p>
+              {usersUpsertError ? (
+                <pre className="bg-gray-100 rounded p-3 text-xs overflow-auto text-red-900 whitespace-pre-wrap break-all">
+                  {JSON.stringify(usersUpsertError, null, 2)}
+                </pre>
+              ) : (
+                <p className="text-gray-500 italic text-xs">No error — upsert appeared to succeed but row still missing after re-fetch.</p>
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <p className="font-bold text-gray-800">public.contractors upsert error</p>
+              {contractorsUpsertError ? (
+                <pre className="bg-gray-100 rounded p-3 text-xs overflow-auto text-red-900 whitespace-pre-wrap break-all">
+                  {JSON.stringify(contractorsUpsertError, null, 2)}
+                </pre>
+              ) : (
+                <p className="text-gray-500 italic text-xs">
+                  {usersUpsertError
+                    ? 'Skipped — users upsert failed first.'
+                    : 'No error — upsert appeared to succeed.'}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <p className="font-bold text-gray-800">users row after recovery attempt</p>
+              <pre className="bg-gray-100 rounded p-3 text-xs overflow-auto text-gray-900 whitespace-pre-wrap break-all">
+                {JSON.stringify(recovered, null, 2)}
+              </pre>
+            </div>
+          </div>
+        </div>
+      )
     }
-    const contractorName = recovered?.full_name ?? user.email ?? 'Contractor'
+
+    // Recovery succeeded
+    const contractorName = recovered.full_name ?? user.email ?? 'Contractor'
     const projects = await getServerProjects(user.id)
     return (
       <ContractorDashboard

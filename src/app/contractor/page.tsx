@@ -78,6 +78,11 @@ async function getServerProjects(userId: string): Promise<Project[]> {
 }
 
 export default async function ContractorPage() {
+  // Read env vars at the top of the function — before any try blocks —
+  // so they're available in the debug page output regardless of where failure occurs.
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? null
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? null
+
   if (!hasSupabase) {
     // Mock mode — render dashboard with sample data and no real auth
     return <ContractorDashboard projects={SAMPLE_PROJECTS} mockMode={true} />
@@ -213,6 +218,24 @@ export default async function ContractorPage() {
                     : 'No error — upsert appeared to succeed.'}
                 </p>
               )}
+            </div>
+
+            <div className="space-y-1">
+              <p className="font-bold text-gray-800">ENV VAR DIAGNOSTIC</p>
+              <pre className="bg-gray-100 rounded p-3 text-xs overflow-auto text-gray-900 whitespace-pre-wrap break-all">
+                {JSON.stringify({
+                  NEXT_PUBLIC_SUPABASE_URL: {
+                    set: supabaseUrl !== null && supabaseUrl.length > 0,
+                    length: supabaseUrl?.length ?? 0,
+                    first30: supabaseUrl ? supabaseUrl.slice(0, 30) : '(empty)',
+                  },
+                  SUPABASE_SERVICE_ROLE_KEY: {
+                    set: serviceKey !== null && serviceKey.length > 0,
+                    length: serviceKey?.length ?? 0,
+                    first30: serviceKey ? serviceKey.slice(0, 30) : '(empty)',
+                  },
+                }, null, 2)}
+              </pre>
             </div>
 
             <div className="space-y-1">

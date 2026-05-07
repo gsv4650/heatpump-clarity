@@ -120,7 +120,7 @@ export default async function ContractorPage() {
 
     try {
       const { createServiceClient } = await import('@/lib/supabase/server')
-      const serviceSupabase = await createServiceClient()
+      const serviceSupabase = createServiceClient()
 
       const role = (user.user_metadata?.role as string) ?? 'contractor'
       const fullName = (user.user_metadata?.full_name as string) ?? null

@@ -18,7 +18,7 @@ export async function createUserProfile(
   }
 
   const { createServiceClient } = await import('@/lib/supabase/server')
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
 
   const { error: userError } = await supabase
     .from('users')

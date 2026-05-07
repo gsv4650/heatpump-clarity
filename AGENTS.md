@@ -77,3 +77,5 @@ See `docs/SUPABASE_DEV_SETUP.md` for step-by-step instructions.
 Short version: paste `supabase/schema.sql` into the SQL Editor and run.
 Then optionally run `supabase/seed.sql` for demo data (dev only).
 <!-- END:supabase-dual-project-rules -->
+
+<!-- Build trigger: 2026-05-07 — force NEXT_PUBLIC env var rebuild -->

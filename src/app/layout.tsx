@@ -91,7 +91,7 @@ export default async function RootLayout({
                         className="rounded-md px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
                         title={email ?? undefined}
                       >
-                        Sign Out
+                        Sign out
                       </button>
                     </form>
                   ) : (
@@ -99,7 +99,7 @@ export default async function RootLayout({
                       href="/auth/signin"
                       className="rounded-md px-3 py-2 bg-[#2563eb] text-white hover:bg-[#1d4ed8] transition-colors font-medium"
                     >
-                      Sign In
+                      Sign in
                     </Link>
                   )}
                 </>

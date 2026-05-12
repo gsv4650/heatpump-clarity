@@ -67,7 +67,7 @@ export default function HomePage() {
             How much will NYS pay you to switch to a heat pump?
           </h1>
           <p className="mt-4 text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
-            Answer 5 questions about your home and utility. Get your exact NYS Clean Heat incentive amount. No sales calls.
+            Answer 5 questions about your home and utility. Estimate your NYS Clean Heat rebate in about 90 seconds. No sales calls.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
             <Link

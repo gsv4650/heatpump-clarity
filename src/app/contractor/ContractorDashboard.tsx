@@ -205,6 +205,9 @@ export default function ContractorDashboard({ projects: initialProjects, mockMod
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Welcome, {displayName}</h1>
             <p className="text-gray-600">Manage your NYS Clean Heat projects</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              We send educated homeowners researching rebates, costs, and heat pump options — not cold generic leads.
+            </p>
           </div>
           <Button
             className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white"

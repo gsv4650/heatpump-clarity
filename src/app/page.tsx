@@ -56,30 +56,30 @@ export default function HomePage() {
         </div>
       )}
 
+      {/* Hero serves homeowner cold traffic with one promise and one action.
+          Contractors are a separate audience reached via the top nav and a
+          planned "For contractors" section lower on the page.
+          Do not add a second CTA here without reviewing audience strategy. */}
       {/* Hero */}
       <section className="py-16 sm:py-24 px-4 sm:px-6">
         <div className="mx-auto max-w-4xl text-center">
           <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-gray-900">
-            Find Out What Heat Pump Incentives You Qualify For
+            How much will NYS pay you to switch to a heat pump?
           </h1>
           <p className="mt-4 text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
-            Navigate NYS Clean Heat incentives the easy way — plain English, no
-            jargon.
+            Answer 5 questions about your home and utility. Get your exact NYS Clean Heat incentive amount. No sales calls.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/eligibility"
               className="inline-flex items-center justify-center rounded-lg h-12 px-8 text-lg font-medium bg-[#2563eb] hover:bg-[#1d4ed8] text-white transition-colors"
             >
-              Check My Eligibility
-            </Link>
-            <Link
-              href="/contractor"
-              className="inline-flex items-center justify-center rounded-lg h-12 px-8 text-lg font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-900 transition-colors"
-            >
-              Contractor Dashboard
+              See my rebate →
             </Link>
           </div>
+          <p className="text-sm text-muted-foreground mt-3">
+            Free · About 90 seconds · No account required
+          </p>
         </div>
       </section>
 

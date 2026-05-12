@@ -74,7 +74,7 @@ export default function HomePage() {
               href="/eligibility"
               className="inline-flex items-center justify-center rounded-lg h-12 px-8 text-lg font-medium bg-[#2563eb] hover:bg-[#1d4ed8] text-white transition-colors"
             >
-              See my rebate →
+              See my estimated rebate →
             </Link>
           </div>
           <p className="text-sm text-muted-foreground mt-3">

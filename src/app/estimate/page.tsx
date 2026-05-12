@@ -321,6 +321,16 @@ function EstimateContent() {
                   </Alert>
                 )}
 
+                <p className="text-xs text-gray-500">
+                  By submitting, you agree to be contacted by a participating
+                  NYS Clean Heat contractor about your project. We will not
+                  sell your information. See our{' '}
+                  <a href="/privacy" className="underline hover:text-gray-700">
+                    Privacy Policy
+                  </a>
+                  .
+                </p>
+
                 <Button
                   type="submit"
                   className="w-full bg-[#16a34a] hover:bg-[#15803d] text-white"

@@ -209,7 +209,11 @@ export default function EligibilityPage() {
                   onValueChange={(v) => setUtility(v as Utility)}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Choose your utility..." />
+                    <SelectValue placeholder="Choose your utility...">
+                      {utility
+                        ? utilityOptions.find((u) => u.value === utility)?.label
+                        : undefined}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {utilityOptions.map((opt) => (
